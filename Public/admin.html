@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - Pinoy Express Shipping</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #0038a8;
+            --primary-red: #ce1126;
+            --accent-yellow: #fcd116;
+            --sidebar-width: 250px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--primary-blue);
+            color: white;
+            padding: 2rem 0;
+        }
+        
+        .logo {
+            text-align: center;
+            padding: 0 1rem 2rem 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .nav-links {
+            list-style: none;
+            margin-top: 2rem;
+        }
+        
+        .nav-links li {
+            padding: 1rem 2rem;
+            border-left: 4px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .nav-links li.active {
+            background: rgba(255,255,255,0.1);
+            border-left-color: var(--accent-yellow);
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
+        
+        .shipments-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .badge-picked { background: #17a2b8; color: white; }
+        .badge-transit { background: #007bff; color: white; }
+        .badge-customs { background: #ffc107; color: #333; }
+        .badge-delivery { background: #6f42c1; color: white; }
+        .badge-delivered { background: #28a745; color: white; }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 5rem auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .btn:hover {
+            background: var(--primary-red);
+        }
+    </style>
+</head>
+<body>
+    <div id="loginPage" class="login-container">
+        <h2 style="text-align: center; margin-bottom: 2rem; color: var(--primary-blue);">
+            <i class="fas fa-lock"></i> Admin Portal
+        </h2>
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="username" placeholder="Enter username">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Enter password">
+        </div>
+        <button class="btn" onclick="login()" style="width: 100%;">Login</button>
+        
+        <div style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+            <p><strong>Demo Credentials:</strong></p>
+            <p>Admin: admin / pinoyexpress2024</p>
+            <p>Support: support / support123</p>
+        </div>
+    </div>
+
+    <div id="adminPanel" style="display: none; width: 100%;">
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-shipping-fast"></i>
+                <h3>Pinoy Express</h3>
+                <small>Admin Portal</small>
+            </div>
+            <ul class="nav-links">
+                <li class="active"><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="#"><i class="fas fa-box"></i> Shipments</a></li>
+                <li><a href="#"><i class="fas fa-users"></i> Customers</a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1>Admin Dashboard</h1>
+                <div>
+                    <span id="adminName"></span>
+                    <button class="btn" onclick="logout()" style="margin-left: 1rem;">Logout</button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalShipments">0</div>
+                    <div>Total Shipments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="inTransit">0</div>
+                    <div>In Transit</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="customsHold">0</div>
+                    <div>Customs Hold</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="delivered">0</div>
+                    <div>Delivered Today</div>
+                </div>
+            </div>
+
+            <h2 style="margin-bottom: 1rem;">Recent Shipments</h2>
+            <div class="shipments-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tracking #</th>
+                            <th>Customer</th>
+                            <th>Status</th>
+                            <th>Last Location</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="shipmentsTable">
+                        <!-- Shipments will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let authToken = '';
+        let currentUser = null;
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    authToken = data.token;
+                    currentUser = data.user;
+                    showAdminPanel();
+                    loadDashboard();
+                } else {
+                    alert('Login failed: ' + data.error);
+                }
+            } catch (error) {
+                alert('Login error. Please try again.');
+            }
+        }
+
+        function showAdminPanel() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'flex';
+            document.getElementById('adminName').textContent = currentUser.name;
+        }
+
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/api/admin/shipments', {
+                    headers: {
+                        'Authorization': 'Bearer ' + authToken
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    updateStats(data.shipments);
+                    updateShipmentsTable(data.shipments);
+                }
+            } catch (error) {
+                console.error('Failed to load dashboard:', error);
+            }
+        }
+
+        function updateStats(shipments) {
+            const total = shipments.length;
+            const inTransit = shipments.filter(s => s.status === 'in_transit').length;
+            const customsHold = shipments.filter(s => s.status === 'customs_hold').length;
+            const delivered = shipments.filter(s => s.status === 'delivered').length;
+
+            document.getElementById('totalShipments').textContent = total;
+            document.getElementById('inTransit').textContent = inTransit;
+            document.getElementById('customsHold').textContent = customsHold;
+            document.getElementById('delivered').textContent = delivered;
+        }
+
+        function updateShipmentsTable(shipments) {
+            const tbody = document.getElementById('shipmentsTable');
+            
+            tbody.innerHTML = shipments.map(shipment => `
+                <tr>
+                    <td><strong>${shipment.trackingNumber}</strong></td>
+                    <td>${shipment.customer.name}</td>
+                    <td>
+                        <span class="status-badge badge-${shipment.status.split('_')[0]}">
+                            ${shipment.status.replace(/_/g, ' ').toUpperCase()}
+                        </span>
+                    </td>
+                    <td>${shipment.currentLocation.name}</td>
+                    <td>
+                        <button class="btn" onclick="viewShipment('${shipment.id}')" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function viewShipment(shipmentId) {
+            alert('View shipment details for: ' + shipmentId);
+            // In full implementation, this would open a detailed view modal
+        }
+
+        function logout() {
+            authToken = '';
+            currentUser = null;
+            document.getElementById('loginPage').style.display = 'block';
+            document.getElementById('adminPanel').style.display = 'none';
+        }
+
+        // Allow Enter key in login form
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') login();
+        });
+
+        console.log('Admin Portal Loaded');
+    </script>
+</body>
+</html>
